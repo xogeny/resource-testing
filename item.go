@@ -2,13 +2,21 @@ package gotodo
 
 type ID string
 
-type todoItem struct {
+type TodoItem struct {
 	title     string
 	completed bool
 }
 
-func makeItem(title string, completed bool) todoItem {
-	return todoItem{
+func (i TodoItem) Title() string {
+	return i.title
+}
+
+func (i TodoItem) Completed() bool {
+	return i.completed
+}
+
+func MakeItem(title string, completed bool) TodoItem {
+	return TodoItem{
 		title:     title,
 		completed: completed,
 	}

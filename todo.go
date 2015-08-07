@@ -7,12 +7,12 @@ import (
 
 // This is here just to summarize the interface of a TodoDatabase
 type TodoInterface interface {
-	Get(ID) (title string, completed bool, err error)
+	Get(ID) (item TodoItem, err error)
 	ListAll() []ID
 	ListActive() []ID
 	ListCompleted() []ID
-	AddTodo(title string, completed bool) (ID, error)
-	Edit(id ID, title string, completed bool) error
+	AddTodo(TodoItem) (ID, error)
+	Edit(id ID, item TodoItem) error
 	MarkCompleted(ID) error
 	ClearCompleted(ID) error
 	Remove(ID) error
@@ -22,15 +22,15 @@ type TodoInterface interface {
 // This is the actual TODO database type
 type TodoDatabase struct {
 	// Mapping of IDs to actual todo items
-	items map[ID]todoItem
+	items map[ID]TodoItem
 }
 
-func (db *TodoDatabase) Get(id ID) (string, bool, error) {
+func (db *TodoDatabase) Get(id ID) (TodoItem, error) {
 	item, exists := db.items[id]
 	if !exists {
-		return "", false, fmt.Errorf("No item with id %s", id)
+		return item, fmt.Errorf("No item with id %s", id)
 	}
-	return item.title, item.completed, nil
+	return item, nil
 }
 
 func (db *TodoDatabase) ListAll() []ID {
@@ -61,7 +61,7 @@ func (db *TodoDatabase) ListCompleted() []ID {
 	return ret
 }
 
-func (db *TodoDatabase) AddTodo(title string, completed bool) (ID, error) {
+func (db *TodoDatabase) AddTodo(item TodoItem) (ID, error) {
 	uuid, err := uuid4.New()
 	if err != nil {
 		return ID(""), err
@@ -69,19 +69,16 @@ func (db *TodoDatabase) AddTodo(title string, completed bool) (ID, error) {
 
 	id := ID(uuid)
 
-	item := makeItem(title, completed)
 	db.items[id] = item
 
 	return id, nil
 }
 
-func (db *TodoDatabase) Edit(id ID, title string, completed bool) error {
-	item, exists := db.items[id]
+func (db *TodoDatabase) Edit(id ID, item TodoItem) error {
+	_, exists := db.items[id]
 	if !exists {
 		return fmt.Errorf("No item with id %s", id)
 	}
-	item.title = title
-	item.completed = completed
 	db.items[id] = item
 	return nil
 }
@@ -121,7 +118,7 @@ func (db *TodoDatabase) Close() error {
 
 func NewDB(name string) *TodoDatabase {
 	ret := TodoDatabase{
-		items: map[ID]todoItem{},
+		items: map[ID]TodoItem{},
 	}
 	return &ret
 }
