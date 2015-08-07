@@ -16,6 +16,8 @@ What this means, in practice, is:
 
 # Nuances
 
+## Queries
+
 This library API is slightly richer in challenges compared to the Todo
 library for a few reasons.  First, it includes multiple domain objects
 (book and authors).  Furthermore, there are reasonable queries that
@@ -29,9 +31,21 @@ effectively involve a join since we'll first need to find all authors
 with the last name Smith (potentially multiple) and then find all
 books whose author list includes any of those authors.
 
+## Workflow
+
 Furthermore, the creation of one domain object (books) depends on the
 existance of the other domain object (the authors). This creates some
 workflow challenges in terms of the API.  It means that creating a
 book is at least a two step process.  First, you need to use the API
 to find (and if they don't already exist, create) the author and then
 you can create the book object.
+
+## Consistency
+
+Operations like Remove should make sure the database is in a
+consistent state.  So it should not be allowed to remove an author if
+there are books that reference that author.
+
+Similarly, when adding or editing a book, some validation must be done
+to make sure that the operation doesn't (re)introduce a dependency on
+a non-existent resource.
