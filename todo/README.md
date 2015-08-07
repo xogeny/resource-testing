@@ -16,12 +16,12 @@ This example was at least partially inspired by
 
 The following is a list of operations that should be supported:
 
-    * ListAll - list the IDs of all todo items
-	* ListActive - list the IDs of all uncompleted todo items
-	* ListCompleted - list the IDs of all completed todo items
-	* Get - Get title and status of item
-	* Add - add a todo item
-	* Edit - edit a todo item
-	* Remove - remove a todo item
-	* MarkCompleted - mark a given item as completed
-	* ClearCompleted - mark a given item as uncompleted
+  * ListAll - list the IDs of all todo items
+  * ListActive - list the IDs of all uncompleted todo items
+  * ListCompleted - list the IDs of all completed todo items
+  * Get - Get title and status of item
+  * Add - add a todo item
+  * Edit - edit a todo item
+  * Remove - remove a todo item
+  * MarkCompleted - mark a given item as completed
+  * ClearCompleted - mark a given item as uncompleted
