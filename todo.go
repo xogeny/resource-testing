@@ -5,9 +5,24 @@ import (
 	uuid4 "github.com/nathanwinther/go-uuid4"
 )
 
+// This is here just to summarize the interface of a TodoDatabase
+type TodoInterface interface {
+	Get(ID) (title string, completed bool, err error)
+	ListAll() []ID
+	ListActive() []ID
+	ListCompleted() []ID
+	AddTodo(title string, completed bool) (ID, error)
+	Edit(id ID, title string, completed bool) error
+	MarkCompleted(ID) error
+	ClearCompleted(ID) error
+	Remove(ID) error
+	Close() error
+}
+
+// This is the actual TODO database type
 type TodoDatabase struct {
-	open  bool
-	items map[ID]TodoItem
+	// Mapping of IDs to actual todo items
+	items map[ID]todoItem
 }
 
 func (db *TodoDatabase) Get(id ID) (string, bool, error) {
@@ -54,28 +69,61 @@ func (db *TodoDatabase) AddTodo(title string, completed bool) (ID, error) {
 
 	id := ID(uuid)
 
-	item := MakeItem(title, completed)
+	item := makeItem(title, completed)
 	db.items[id] = item
 
 	return id, nil
 }
 
-func (db *TodoDatabase) Close() error {
-	db.open = false
+func (db *TodoDatabase) Edit(id ID, title string, completed bool) error {
+	item, exists := db.items[id]
+	if !exists {
+		return fmt.Errorf("No item with id %s", id)
+	}
+	item.title = title
+	item.completed = completed
+	db.items[id] = item
 	return nil
 }
 
-func (db *TodoDatabase) Remove() error {
-	if db.open {
-		return fmt.Errorf("Cannot remove database while open")
+func (db *TodoDatabase) MarkCompleted(id ID) error {
+	item, exists := db.items[id]
+	if !exists {
+		return fmt.Errorf("No item with id %s", id)
 	}
+	item.completed = true
+	db.items[id] = item
+	return nil
+}
+
+func (db *TodoDatabase) ClearCompleted(id ID) error {
+	item, exists := db.items[id]
+	if !exists {
+		return fmt.Errorf("No item with id %s", id)
+	}
+	item.completed = false
+	db.items[id] = item
+	return nil
+}
+
+func (db *TodoDatabase) Remove(id ID) error {
+	_, exists := db.items[id]
+	if exists {
+		delete(db.items, id)
+		return nil
+	}
+	return fmt.Errorf("No item with id %s", id)
+}
+
+func (db *TodoDatabase) Close() error {
 	return nil
 }
 
 func NewDB(name string) *TodoDatabase {
 	ret := TodoDatabase{
-		open:  true,
-		items: map[ID]TodoItem{},
+		items: map[ID]todoItem{},
 	}
 	return &ret
 }
+
+var _ TodoInterface = (*TodoDatabase)(nil)
