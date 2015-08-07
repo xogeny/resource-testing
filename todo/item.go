@@ -1,6 +1,4 @@
-package gotodo
-
-type ID string
+package todo
 
 type TodoItem struct {
 	title     string

@@ -1,4 +1,4 @@
-package gotodo
+package todo
 
 import (
 	"fmt"
@@ -18,6 +18,9 @@ type TodoInterface interface {
 	Remove(ID) error
 	Close() error
 }
+
+// Handle representing a Todo item
+type ID string
 
 // This is the actual TODO database type
 type TodoDatabase struct {
